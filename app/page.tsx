@@ -1,10 +1,11 @@
+import Hero from "@/components/Hero";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="relative bg-black">
-      <div>
-        <h1>Hello, Portfolio</h1>
+    <main className="relative mx-auto flex flex-col items-center justify-center overflow-hidden bg-black-100 px-5 sm:px-10">
+      <div className="w-full max-w-7xl">
+        <Hero />
       </div>
     </main>
   );
