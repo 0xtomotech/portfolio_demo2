@@ -1,11 +1,11 @@
-"use client";
+"use client"; // Ensures the component is treated as a client-side component
 
 import { cn } from "@/utils/cn";
 import { BackgroundGradientAnimation } from "./GradientBG";
 import { Globe } from "./Globe";
 import { GlobeDemo } from "./GridGlobe";
 import Lottie from "react-lottie";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Import useEffect
 import animationData from "@/data/confetti.json";
 import MagicButton from "./MagicButton";
 import { IoCopyOutline } from "react-icons/io5";
@@ -20,8 +20,6 @@ export const BentoGrid = ({
   return (
     <div
       className={cn(
-        // change gap-4 to gap-8, change grid-cols-3 to grid-cols-5, remove md:auto-rows-[18rem], add responsive code
-        // "mx-auto grid max-w-7xl grid-cols-1 gap-4 md:auto-rows-[18rem] md:grid-cols-3 "
         "mx-auto grid max-w-7xl grid-cols-1 gap-4 md:grid-cols-6 lg:grid-cols-5 lg:gap-8 ",
         className,
       )}
@@ -53,12 +51,20 @@ export const BentoGridItem = ({
   spareImg?: string;
 }) => {
   const [copied, setCopied] = useState(false);
+  const [isClient, setIsClient] = useState(false); // State to check if running on client
+
+  useEffect(() => {
+    setIsClient(true); // Set to true only on the client
+  }, []); // Empty dependency array means it runs once after initial render
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("0xtomotech@gmail.com");
-
-    setCopied(true);
+    if (isClient) {
+      // Ensure navigator.clipboard is only accessed on the client
+      navigator.clipboard.writeText("0xtomotech@gmail.com");
+      setCopied(true);
+    }
   };
+
   return (
     <div
       className={cn(
@@ -73,29 +79,31 @@ export const BentoGridItem = ({
     >
       <div className={`${id === 6 && "flex justify-center"} h-full`}>
         <div className="absolute h-full w-full">
-          {img && (
-            <img
-              src={img}
-              alt={img}
-              className={cn(imgClassName, "object-cover object-center")}
-            />
-          )}
+          {img &&
+            isClient && ( // Only render img on the client
+              <img
+                src={img}
+                alt={img}
+                className={cn(imgClassName, "object-cover object-center")}
+              />
+            )}
         </div>
         <div
           className={`absolute -bottom-5 right-0 ${id === 5 && "w-full opacity-80"}`}
         >
-          {spareImg && (
-            <img
-              src={spareImg}
-              alt={spareImg}
-              className={"h-full w-full object-cover object-center"}
-            />
-          )}
+          {spareImg &&
+            isClient && ( // Only render spareImg on the client
+              <img
+                src={spareImg}
+                alt={spareImg}
+                className={"h-full w-full object-cover object-center"}
+              />
+            )}
         </div>
 
         {id === 6 && (
           <BackgroundGradientAnimation>
-            <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center px-4 text-center text-3xl font-bold text-white md:text-4xl lg:text-7xl" />
+            {/* <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center px-4 text-center text-3xl font-bold text-white md:text-4xl lg:text-7xl" /> */}
           </BackgroundGradientAnimation>
         )}
 
@@ -145,26 +153,34 @@ export const BentoGridItem = ({
 
           {id === 6 && (
             <div className="relative mt-5">
-              <div className={`absolute -bottom-5 right-0`}>
-                <Lottie
-                  options={{
-                    loop: copied,
-                    autoplay: copied,
-                    animationData: animationData,
-                    rendererSettings: {
-                      preserveAspectRatio: "xMidYMid slice",
-                    },
-                  }}
-                />
+              <div
+                className={`absolute -bottom-5 right-0 ${copied ? "block" : "block"}`}
+              >
+                {isClient && ( // Only render Lottie on the client
+                  <Lottie
+                    options={{
+                      loop: copied,
+                      autoplay: copied,
+                      animationData: animationData,
+                      rendererSettings: {
+                        preserveAspectRatio: "xMidYMid slice",
+                      },
+                    }}
+                    height={200}
+                    width={400}
+                  />
+                )}
               </div>
 
-              <MagicButton
-                title={copied ? "Email copied" : "Copy my email"}
-                icon={<IoCopyOutline />}
-                position="left"
-                otherClasses="!bg-[#161a31]"
-                handleClick={handleCopy}
-              />
+              {isClient && ( // Only render MagicButton on the client
+                <MagicButton
+                  title={copied ? "Email copied" : "Copy my email"}
+                  icon={<IoCopyOutline />}
+                  position="left"
+                  otherClasses="!bg-[#161a31]"
+                  handleClick={handleCopy}
+                />
+              )}
             </div>
           )}
         </div>
